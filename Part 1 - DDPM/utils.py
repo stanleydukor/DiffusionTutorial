@@ -19,7 +19,10 @@ import os
 
 def load_checkpoint(save_dir, prefix, model, optim, device):
     """Load latest checkpoint. Returns (start_epoch, best_val_loss)."""
-    files = sorted(glob.glob(os.path.join(save_dir, f'{prefix}_[0-9]*.pth')))
+    files = sorted(
+        glob.glob(os.path.join(save_dir, f'{prefix}_[0-9]*.pth')),
+        key=lambda f: int(os.path.splitext(os.path.basename(f))[0].split('_')[-1])
+    )
     if not files:
         return 0, float('inf')
     checkpoint = torch.load(files[-1], map_location=device)
