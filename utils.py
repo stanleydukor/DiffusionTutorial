@@ -135,7 +135,7 @@ def plot_sample(x_gen_store, n_sample, nrows, save_dir, fn, w, save=False):
         ncols=ncols,
         sharex=True,
         sharey=True,
-        figsize=(ncols, nrows)
+        figsize=(ncols*4, nrows*4)
     )
 
     # Make sure axs is 2D even for single row/col
