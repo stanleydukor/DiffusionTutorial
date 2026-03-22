@@ -35,6 +35,10 @@ class ResidualConvBlock(nn.Module):
         # Flag for whether or not to use residual connection
         self.is_res = is_res
 
+        # 1x1 projection for residual connection when channels differ
+        if is_res and not self.same_channels:
+            self.shortcut = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, padding=0)
+
         # First convolutional layer
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, 1, 1),   # 3x3 kernel with stride 1 and padding 1
@@ -63,9 +67,8 @@ class ResidualConvBlock(nn.Module):
             if self.same_channels:
                 out = x + x2
             else:
-                # If not, apply a 1x1 convolutional layer to match dimensions before adding residual connection
-                shortcut = nn.Conv2d(x.shape[1], x2.shape[1], kernel_size=1, stride=1, padding=0).to(x.device)
-                out = shortcut(x) + x2
+                # Use pre-initialized 1x1 projection for channel matching
+                out = self.shortcut(x) + x2
             #print(f"resconv forward: x {x.shape}, x1 {x1.shape}, x2 {x2.shape}, out {out.shape}")
 
             # Normalize output tensor
@@ -171,8 +174,7 @@ class DDPMUnet(nn.Module):
         self.down1 = UnetDown(n_feat, n_feat)        # down1 #[10, 256, 8, 8]
         self.down2 = UnetDown(n_feat, 2 * n_feat)    # down2 #[10, 256, 4,  4]
         
-         # original: self.to_vec = nn.Sequential(nn.AvgPool2d(7), nn.GELU())
-        self.to_vec = nn.Sequential(nn.AvgPool2d((4)), nn.GELU())
+        self.to_vec = nn.Sequential(nn.AvgPool2d((self.h//4)), nn.GELU())
 
         # Embed the timestep and context labels with a one-layer fully connected neural network
         self.timeembed1 = EmbedFC(1, 2*n_feat)
