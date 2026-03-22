@@ -6,3 +6,9 @@ numpy
 ipython
 Pillow
 PyYAML
+diffusers
+transformers
+accelerate
+peft
+datasets
+bitsandbytes
