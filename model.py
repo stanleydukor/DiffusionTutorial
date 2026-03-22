@@ -141,9 +141,9 @@ class EmbedFC(nn.Module):
         return self.model(x)
 
 
-class ContextUnet(nn.Module):
+class DDPMUnet(nn.Module):
     def __init__(self, in_channels, n_feat=256, n_cfeat=10, height=28):  # cfeat - context features
-        super(ContextUnet, self).__init__()
+        super(DDPMUnet, self).__init__()
 
         # number of input channels, number of intermediate feature maps and number of classes
         self.in_channels = in_channels

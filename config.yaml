@@ -1,15 +1,17 @@
+data_path: "/mnt/f/Datasets/CelebAHQ/"
+
 # diffusion hyperparameters
 timesteps: 500
-beta1: 1e-4
+beta1: 0.0001  # 1e-4
 beta2: 0.02
 
 # network hyperparameters
 n_feat: 64 # 64 hidden dimension feature
-n_cfeat: 5 # context vector is of size 5
+n_cfeat: 2 # context vector is of size 2 (male/female)
 height: 256 # 256x256 image
 save_dir: "./weights/"
 
 # training hyperparameters
 batch_size: 100
 n_epoch: 32
-lrate: 1e-3
+lrate: 0.001  # 1e-3
