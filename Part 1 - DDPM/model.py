@@ -1,5 +1,5 @@
 """
-DDPM U-Net Model for Diffusion Models Tutorial
+DDPM U-Net Model
 
 This module implements the neural network architecture for diffusion models:
 - ResidualConvBlock: Basic building block with skip connections

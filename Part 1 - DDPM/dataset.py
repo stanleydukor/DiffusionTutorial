@@ -1,5 +1,5 @@
 """
-Dataset Module for Diffusion Models Tutorial
+Dataset Module
 
 This module provides:
 - CelebAHQDataset: PyTorch Dataset for loading CelebA-HQ images with gender labels (Download here: https://www.kaggle.com/datasets/lamsimon/celebahq)

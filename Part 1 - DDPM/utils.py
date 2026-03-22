@@ -1,5 +1,5 @@
 """
-Utility functions for Diffusion Models Tutorial
+Utility functions
 
 This module provides helper functions for:
 - Loading configuration

@@ -1,9 +1,9 @@
 # ==============================================================================
-# Diffusion Models Tutorial Configuration
+# Configuration
 # ==============================================================================
 
 # Dataset Configuration
-data_path: "/home/obum/Datasets/CelebAHQ/" # Path to CelebA-HQ dataset
+data_path: "/mnt/f/Datasets/CelebAHQ/" # Path to CelebA-HQ dataset
 
 # Diffusion Process Hyperparameters
 timesteps: 500 # Number of diffusion timesteps (T)
