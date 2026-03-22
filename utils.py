@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
+import yaml
 from torchvision.utils import save_image, make_grid
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
@@ -8,6 +9,11 @@ import os
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset
 from PIL import Image
+
+def load_config(config_file):
+    with open(config_file, 'r') as yaml_file:
+        config = yaml.safe_load(yaml_file)
+    return config
 
 def unorm(x):
     # unity norm. results in range of [0,1]
