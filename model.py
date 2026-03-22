@@ -1,13 +1,26 @@
+"""
+DDPM U-Net Model for Diffusion Models Tutorial
+
+This module implements the neural network architecture for diffusion models:
+- ResidualConvBlock: Basic building block with skip connections
+- UnetDown: Downsampling path of U-Net
+- UnetUp: Upsampling path of U-Net
+- EmbedFC: Embedding network for timestep and context
+- DDPMUnet: Full U-Net architecture for noise prediction
+
+Architecture Overview:
+    Input: Noisy image x_t, timestep t, optional context c
+    Output: Predicted noise ε
+
+The U-Net processes the noisy image through:
+1. Downsampling path: Extract features at multiple scales
+2. Bottleneck: Process compressed representation
+3. Upsampling path: Reconstruct to original resolution
+4. Timestep/context embeddings: Condition on time and context
+"""
+
 import torch
 import torch.nn as nn
-import numpy as np
-from torchvision.utils import save_image, make_grid
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation, PillowWriter
-import os
-import torchvision.transforms as transforms
-from torch.utils.data import Dataset
-from PIL import Image
 
 
 class ResidualConvBlock(nn.Module):

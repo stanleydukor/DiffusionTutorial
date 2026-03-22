@@ -1,20 +1,43 @@
+"""
+Dataset Module for Diffusion Models Tutorial
+
+This module provides:
+- CelebAHQDataset: PyTorch Dataset for loading CelebA-HQ images with gender labels (Download here: https://www.kaggle.com/datasets/lamsimon/celebahq)
+- transform: Default image preprocessing pipeline
+
+Directory Structure Expected:
+    data_path/
+        train/
+            female/
+                img001.jpg
+                img002.jpg
+                ...
+            male/
+                img001.jpg
+                img002.jpg
+                ...
+        val/
+            female/
+            male/
+
+The dataset returns:
+    - images: RGB tensors normalized to [-1, 1]
+    - labels: One-hot encoded gender labels [1,0]=female, [0,1]=male
+              or 0 for unconditional generation when null_context=True
+"""
+
 import torch
-import torch.nn as nn
-import numpy as np
-from torchvision.utils import save_image, make_grid
 from torchvision.datasets import ImageFolder
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation, PillowWriter
-import os
 import torchvision.transforms as transforms
-from torch.utils.data import Dataset
-from PIL import Image
 from pathlib import Path
 
 
 class CelebAHQDataset(ImageFolder):
     """
-    Dataset class for CelebA-HQ.
+    Dataset class for CelebA-HQ with gender labels
+
+    Inherits from ImageFolder for automatic class discovery and loading.
+    Adds one-hot encoding for conditional generation.
     """
     def __init__(self, root_dir, mode='train', transform=None, null_context=False):
         """
@@ -55,9 +78,11 @@ class CelebAHQDataset(ImageFolder):
         return (image, label)
 
 
+# Default transform for CelebA-HQ images
+# Resize -> Center Crop -> To Tensor -> Normalize to [-1, 1]
 transform = transforms.Compose([
-    transforms.Resize(256),
-    transforms.CenterCrop(256),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) # range [-1,1]
+    transforms.Resize(256),                                    # Resize shortest side to 256
+    transforms.CenterCrop(256),                               # Crop 256x256 from center
+    transforms.ToTensor(),                                    # Convert to tensor [0, 1]
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))   # Normalize to [-1, 1]
 ])

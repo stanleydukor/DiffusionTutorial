@@ -1,17 +1,22 @@
-data_path: "/mnt/f/Datasets/CelebAHQ/"
+# ==============================================================================
+# Diffusion Models Tutorial Configuration
+# ==============================================================================
 
-# diffusion hyperparameters
-timesteps: 500
-beta1: 0.0001  # 1e-4
-beta2: 0.02
+# Dataset Configuration
+data_path: "/mnt/f/Datasets/CelebAHQ/"  # Path to CelebA-HQ dataset
 
-# network hyperparameters
-n_feat: 64 # 64 hidden dimension feature
-n_cfeat: 2 # context vector is of size 2 (male/female)
-height: 256 # 256x256 image
-save_dir: "./weights/"
+# Diffusion Process Hyperparameters
+timesteps: 500      # Number of diffusion timesteps (T)
+beta1: 0.0001       # Starting noise variance (β₁ = 1e-4)
+beta2: 0.02         # Ending noise variance (β_T = 0.02)
 
-# training hyperparameters
-batch_size: 100
-n_epoch: 32
-lrate: 0.001  # 1e-3
+# Model Architecture
+n_feat: 64          # Hidden dimension for feature maps
+n_cfeat: 2          # Context vector size (2 for male/female)
+height: 256         # Image resolution (256x256)
+save_dir: "./weights/"  # Directory to save model checkpoints
+
+# Training Hyperparameters
+batch_size: 100     # Batch size for training
+n_epoch: 32         # Number of training epochs
+lrate: 0.001        # Learning rate (1e-3)
