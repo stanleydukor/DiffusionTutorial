@@ -7,6 +7,7 @@ This module provides helper functions for:
 - Creating animations of the denoising process
 """
 
+import glob
 import torch
 import numpy as np
 import yaml
@@ -14,6 +15,37 @@ from torchvision.utils import save_image, make_grid
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
 import os
+
+
+def load_checkpoint(save_dir, prefix, model, optim, device):
+    """Load latest checkpoint. Returns (start_epoch, best_val_loss)."""
+    files = sorted(glob.glob(os.path.join(save_dir, f'{prefix}_[0-9]*.pth')))
+    if not files:
+        return 0, float('inf')
+    checkpoint = torch.load(files[-1], map_location=device)
+    if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optim.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_ep = checkpoint['epoch'] + 1
+        best_val_loss = checkpoint.get('best_val_loss', float('inf'))
+    else:  # legacy: bare state_dict
+        model.load_state_dict(checkpoint)
+        ep_str = os.path.splitext(os.path.basename(files[-1]))[0].split('_')[-1]
+        start_ep, best_val_loss = int(ep_str) + 1, float('inf')
+    print(f'Resumed from {files[-1]} (epoch {start_ep - 1})')
+    return start_ep, best_val_loss
+
+
+def save_checkpoint(save_dir, prefix, ep, model, optim, best_val_loss):
+    """Save full training checkpoint (model + optimizer + epoch)."""
+    path = os.path.join(save_dir, f'{prefix}_{ep}.pth')
+    torch.save({
+        'epoch': ep,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optim.state_dict(),
+        'best_val_loss': best_val_loss,
+    }, path)
+    print(f'Saved checkpoint: {path}')
 
 
 def load_config(config_file):
