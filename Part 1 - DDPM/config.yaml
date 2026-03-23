@@ -11,7 +11,7 @@ beta1: 0.0001 # Starting noise variance (β₁ = 1e-4)
 beta2: 0.02 # Ending noise variance (β_T = 0.02)
 
 # Model Architecture
-n_feat: 64 # Hidden dimension for feature maps
+n_feat: 128 # Hidden dimension for feature maps
 n_cfeat: 2 # Context vector size (2 for male/female)
 height: 256 # Image resolution (256x256)
 save_dir: "./weights/" # Directory to save model checkpoints
@@ -19,5 +19,5 @@ save_dir: "./weights/" # Directory to save model checkpoints
 # Training Hyperparameters
 batch_size: 16 # Batch size for training
 num_workers: 8 # Number of CPU cores to use for data loading
-n_epoch: 100 # Number of training epochs
+n_epoch: 50 # Number of training epochs
 lrate: 0.001 # Learning rate (1e-3)
