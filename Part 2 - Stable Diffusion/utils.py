@@ -114,6 +114,7 @@ def train_epoch(
     dtype,
     epoch_idx,
     style_name,
+    image_size=1024,
 ):
     """
     Run one epoch of LoRA fine-tuning on a single artistic style
@@ -164,7 +165,7 @@ def train_epoch(
         )
 
         # 5. SDXL additional conditioning (image size metadata)
-        add_time_ids      = get_add_time_ids(bsz, device, dtype)
+        add_time_ids      = get_add_time_ids(bsz, device, dtype, image_size=image_size)
         added_cond_kwargs = {"text_embeds": pooled_embeds, "time_ids": add_time_ids}
 
         # 6. Predict noise with LoRA-augmented UNet
@@ -229,6 +230,7 @@ def plot_style_sweep(
     seed=42,
     sweep_weights=None,
     save_path="style_sweep.png",
+    image_size=1024,
 ):
     """
     Generate and display a grid of images sweeping from one LoRA style to another
@@ -270,7 +272,7 @@ def plot_style_sweep(
                 negative_prompt=negative_prompt,
                 num_inference_steps=n_steps,
                 guidance_scale=guidance_scale,
-                height=1024, width=1024,
+                height=image_size, width=image_size,
                 generator=generator,
             ).images[0]
         images.append((w_imp, w_ukiyo, img))
@@ -306,6 +308,7 @@ def generate_styled(
     guidance_scale=7.5,
     seed=42,
     negative_prompt="blurry, low quality, watermark, text, distorted",
+    image_size=1024,
 ):
     """
     Generate images by blending Impressionism and Ukiyo-e LoRA adapters
@@ -342,7 +345,7 @@ def generate_styled(
                 negative_prompt=negative_prompt,
                 num_inference_steps=n_steps,
                 guidance_scale=guidance_scale,
-                height=1024, width=1024,
+                height=image_size, width=image_size,
                 generator=generator,
             ).images[0]
         images.append(img)

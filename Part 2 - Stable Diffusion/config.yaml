@@ -6,32 +6,44 @@
 model_id: "stabilityai/stable-diffusion-xl-base-1.0"
 
 # Dataset
-dataset_path: "/mnt/f/Datasets/WikiArt"     # Local cache; downloaded from huggan/wikiart
+dataset_path: "/mnt/f/Datasets/WikiArt" # Local cache; downloaded from huggan/wikiart
 hf_dataset_id: "huggan/wikiart"
 
 # Target styles for LoRA training (WikiArt style column indices)
-style_a_name: "Impressionism"               # Index 12
-style_b_name: "Ukiyo_e"                     # Index 26
+style_a_name: "Impressionism" # Index 12
+style_b_name: "Ukiyo_e" # Index 26
 
 # Image resolution (SDXL native resolution)
 image_size: 1024
 
 # LoRA hyperparameters
-lora_rank: 16                               # r — rank of the low-rank matrices
-lora_alpha: 16                              # α — scaling factor (effective scale = α / r)
-lora_target_modules:                        # Attention projection layers to inject
+lora_rank: 16 # r — rank of the low-rank matrices
+lora_alpha: 16 # α — scaling factor (effective scale = α / r)
+lora_target_modules: # Attention projection layers to inject
   - "to_q"
   - "to_k"
   - "to_v"
   - "to_out.0"
 
 # Training hyperparameters
-batch_size: 1                               # Per-device batch size (1024² needs ~20 GB VRAM)
-gradient_accumulation_steps: 4             # Effective batch size = batch_size × grad_accum
-learning_rate: 0.0001                       # 1e-4
-num_epochs: 5                              # Increase to 10–20 for production quality
-max_samples: 2000                           # Images per style; set null to use all
-num_workers: 4                              # DataLoader workers
+batch_size: 1 # Per-device batch size (1024² needs ~20 GB VRAM)
+gradient_accumulation_steps: 4 # Effective batch size = batch_size × grad_accum
+learning_rate: 0.0001 # 1e-4
+num_epochs: 20 # Increase to 10–20 for production quality
+max_samples: 2000 # Images per style; set null to use all
+num_workers: 4 # DataLoader workers
 
 # Checkpoint directories
-save_dir: "./lora_weights"                  # LoRA adapter weights saved here
+save_dir: "./lora_weights" # LoRA adapter weights saved here
+save_every_n_epochs: 5 # Save a periodic checkpoint every N epochs
+
+# Inference
+num_inference_steps: 30 # DDIM sampling steps at inference time
+guidance_scale: 7.5 # Classifier-free guidance scale
+seed: 42 # Random seed for reproducibility
+negative_prompt: "blurry, low quality, watermark, signature, text, distorted"
+
+# Post-training style test (run after each LoRA before mixing)
+n_test_images: 4
+test_prompt: "a mountain landscape with trees and a river, painting"
+sweep_prompt: "a painting of a mountain landscape with trees and a river, detailed, beautiful"
