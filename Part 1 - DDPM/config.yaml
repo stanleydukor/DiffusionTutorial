@@ -13,7 +13,7 @@ beta2: 0.02 # Ending noise variance (β_T = 0.02)
 # Model Architecture
 n_feat: 64 # Hidden dimension for feature maps
 n_cfeat: 2 # Context vector size (2 for male/female)
-height: 64 # Image resolution (256x256)
+image_size: 64 # Image resolution (e.g. 64 for 64x64)
 save_dir: "./weights/" # Directory to save model checkpoints
 
 # Training Hyperparameters

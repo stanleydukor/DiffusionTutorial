@@ -158,14 +158,14 @@ class EmbedFC(nn.Module):
 
 
 class DDPMUnet(nn.Module):
-    def __init__(self, in_channels, n_feat=256, n_cfeat=10, height=28):  # cfeat - context features
+    def __init__(self, in_channels, n_feat=256, n_cfeat=10, image_size=64):  # cfeat - context features
         super(DDPMUnet, self).__init__()
 
         # number of input channels, number of intermediate feature maps and number of classes
         self.in_channels = in_channels
         self.n_feat = n_feat
         self.n_cfeat = n_cfeat
-        self.h = height  #assume h == w. must be divisible by 4, so 28,24,20,16...
+        self.h = image_size  #assume h == w. must be divisible by 4, so 64,32,16...
 
         # Initialize the initial convolutional layer
         self.init_conv = ResidualConvBlock(in_channels, n_feat, is_res=True)

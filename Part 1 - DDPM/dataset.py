@@ -78,11 +78,17 @@ class CelebAHQDataset(ImageFolder):
         return (image, label)
 
 
-# Default transform for CelebA-HQ images
-# Resize -> Center Crop -> To Tensor -> Normalize to [-1, 1]
-transform = transforms.Compose([
-    transforms.Resize(256),                                    # Resize shortest side to 256
-    transforms.CenterCrop(256),                               # Crop 256x256 from center
-    transforms.ToTensor(),                                    # Convert to tensor [0, 1]
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))   # Normalize to [-1, 1]
-])
+def get_transform(image_size):
+    """
+    Build the image preprocessing pipeline for a given image size.
+
+    Args:
+        image_size: target spatial resolution (images will be image_size x image_size)
+    Returns:
+        torchvision.transforms.Compose: Resize -> ToTensor -> Normalize to [-1, 1]
+    """
+    return transforms.Compose([
+        transforms.Resize(image_size),                                    # Resize shortest side to image_size
+        transforms.ToTensor(),                                            # Convert to tensor [0, 1]
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))           # Normalize to [-1, 1]
+    ])
