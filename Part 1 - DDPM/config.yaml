@@ -19,5 +19,5 @@ save_dir: "./weights/" # Directory to save model checkpoints
 # Training Hyperparameters
 batch_size: 16 # Batch size for training
 num_workers: 8 # Number of CPU cores to use for data loading
-n_epoch: 50 # Number of training epochs
+n_epoch: 100 # Number of training epochs
 lrate: 0.001 # Learning rate (1e-3)
