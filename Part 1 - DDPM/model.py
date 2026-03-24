@@ -158,7 +158,7 @@ class EmbedFC(nn.Module):
 
 
 class DDPMUnet(nn.Module):
-    def __init__(self, in_channels, n_feat=256, n_cfeat=10, image_size=64):  # cfeat - context features
+    def __init__(self, in_channels, n_feat=64, n_cfeat=2, image_size=64):  # cfeat - context features
         super(DDPMUnet, self).__init__()
 
         # number of input channels, number of intermediate feature maps and number of classes
@@ -171,8 +171,8 @@ class DDPMUnet(nn.Module):
         self.init_conv = ResidualConvBlock(in_channels, n_feat, is_res=True)
 
         # Initialize the down-sampling path of the U-Net with two levels
-        self.down1 = UnetDown(n_feat, n_feat)        # down1 #[10, 256, 8, 8]
-        self.down2 = UnetDown(n_feat, 2 * n_feat)    # down2 #[10, 256, 4,  4]
+        self.down1 = UnetDown(n_feat, n_feat)        # down1 #[16, 64, 32, 32]
+        self.down2 = UnetDown(n_feat, 2 * n_feat)    # down2 #[16, 128, 16, 16]
         
         self.to_vec = nn.Sequential(nn.AvgPool2d((self.h//4)), nn.GELU())
 
@@ -188,8 +188,8 @@ class DDPMUnet(nn.Module):
             nn.GroupNorm(8, 2 * n_feat), # normalize                       
             nn.ReLU(),
         )
-        self.up1 = UnetUp(4 * n_feat, n_feat)
-        self.up2 = UnetUp(2 * n_feat, n_feat)
+        self.up1 = UnetUp(4 * n_feat, n_feat)   # up1 #[16, 64, 32, 32]
+        self.up2 = UnetUp(2 * n_feat, n_feat)   # up2 #[16, 64, 64, 64]
 
         # Initialize the final convolutional layers to map to the same number of channels as the input image
         self.out = nn.Sequential(
@@ -201,35 +201,38 @@ class DDPMUnet(nn.Module):
 
     def forward(self, x, t, c=None):
         """
-        x : (batch, n_feat, h, w) : input image
-        t : (batch, n_cfeat)      : time step
-        c : (batch, n_classes)    : context label
+        x : (batch, in_channels, h, h) : input image
+        t : (batch, 1)                 : time step
+        c : (batch, n_cfeat)           : context label
         """
         # x is the input image, c is the context label, t is the timestep, context_mask says which samples to block the context on
 
         # pass the input image through the initial convolutional layer
-        x = self.init_conv(x)
+        x = self.init_conv(x)                   # [16, 64, 64, 64]
         # pass the result through the down-sampling path
-        down1 = self.down1(x)       #[10, 256, 8, 8]
-        down2 = self.down2(down1)   #[10, 256, 4, 4]
-        
+        down1 = self.down1(x)                   # [16, 64, 32, 32]
+        down2 = self.down2(down1)               # [16, 128, 16, 16]
+
         # convert the feature maps to a vector and apply an activation
-        hiddenvec = self.to_vec(down2)
-        
+        hiddenvec = self.to_vec(down2)          # [16, 128, 1, 1]
+
         # mask out context if context_mask == 1
         if c is None:
             c = torch.zeros(x.shape[0], self.n_cfeat).to(x)
-            
+
         # embed context and timestep
-        cemb1 = self.contextembed1(c).view(-1, self.n_feat * 2, 1, 1)     # (batch, 2*n_feat, 1,1)
-        temb1 = self.timeembed1(t).view(-1, self.n_feat * 2, 1, 1)
-        cemb2 = self.contextembed2(c).view(-1, self.n_feat, 1, 1)
-        temb2 = self.timeembed2(t).view(-1, self.n_feat, 1, 1)
-        #print(f"uunet forward: cemb1 {cemb1.shape}. temb1 {temb1.shape}, cemb2 {cemb2.shape}. temb2 {temb2.shape}")
+        cemb1 = self.contextembed1(c).view(-1, self.n_feat * 2, 1, 1)     # [16, 128, 1, 1]
+        temb1 = self.timeembed1(t).view(-1, self.n_feat * 2, 1, 1)        # [16, 128, 1, 1]
+        cemb2 = self.contextembed2(c).view(-1, self.n_feat, 1, 1)         # [16, 64, 1, 1]
+        temb2 = self.timeembed2(t).view(-1, self.n_feat, 1, 1)            # [16, 64, 1, 1]
 
+        up0 = self.up0(hiddenvec)                   # [16, 128, 16, 16]
+        up0_emb = cemb1 * up0 + temb1               # [16, 128, 16, 16]  (cemb1/temb1 broadcast from [16, 128, 1, 1])
+        up1 = self.up1(up0_emb, down2)              # [16, 64, 32, 32]
 
-        up1 = self.up0(hiddenvec)
-        up2 = self.up1(cemb1*up1 + temb1, down2)  # add and multiply embeddings
-        up3 = self.up2(cemb2*up2 + temb2, down1)
-        out = self.out(torch.cat((up3, x), 1))
+        up1_emb = cemb2 * up1 + temb2               # [16, 64, 32, 32]   (cemb2/temb2 broadcast from [16, 64, 1, 1])
+        up2 = self.up2(up1_emb, down1)              # [16, 64, 64, 64]
+
+        up2_cat = torch.cat((up2, x), 1)            # [16, 128, 64, 64]  (cat along channel dim)
+        out = self.out(up2_cat)                     # [16, in_channels, 64, 64]
         return out
