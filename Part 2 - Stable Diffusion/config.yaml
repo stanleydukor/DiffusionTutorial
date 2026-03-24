@@ -47,3 +47,4 @@ negative_prompt: "blurry, low quality, watermark, signature, text, distorted"
 n_test_images: 4
 test_prompt: "a mountain landscape with trees and a river, painting"
 sweep_prompt: "a painting of a mountain landscape with trees and a river, detailed, beautiful"
+comparison_prompt: "a serene lake at sunrise, beautiful landscape painting"
